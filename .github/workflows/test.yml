@@ -37,14 +37,14 @@ jobs:
             sleep 1
           done
 
-          # verify HTTP 200
-          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "http://127.0.0.1:3000/?tkn=${TOKEN}")
+          # verify HTTP 200 (follow redirects)
+          HTTP_CODE=$(curl -sL -o /dev/null -w "%{http_code}" "http://127.0.0.1:3000/?tkn=${TOKEN}")
           echo "HTTP status: $HTTP_CODE"
           test "$HTTP_CODE" = "200"
           echo "✅ server: HTTP 200 OK"
 
-          # verify bad token gets rejected
-          BAD_CODE=$(curl -s -o /dev/null -w "%{http_code}" "http://127.0.0.1:3000/?tkn=wrong")
+          # verify bad token gets rejected (should not get 200)
+          BAD_CODE=$(curl -sL -o /dev/null -w "%{http_code}" "http://127.0.0.1:3000/?tkn=wrong")
           echo "Bad token HTTP status: $BAD_CODE"
           test "$BAD_CODE" != "200"
           echo "✅ server: bad token rejected"
