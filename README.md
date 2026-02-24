@@ -28,6 +28,9 @@ uvx portable-ovscode [OPTIONS] [-- EXTRA_ARGS]
 | `--token TOKEN` | auto-generated | Connection token |
 | `--no-token` | | Disable auth token |
 | `--folder PATH` | | Default folder to open |
+| `--https` | | Enable HTTPS with auto-generated self-signed cert |
+| `--cert PATH` | | Path to TLS certificate (implies --https) |
+| `--cert-key PATH` | | Path to TLS private key (implies --https) |
 | `--install-only` | | Download only, print binary path |
 
 Extra arguments after `--` are passed directly to openvscode-server.
@@ -46,6 +49,12 @@ uvx portable-ovscode --version 1.95.3 --folder ~/code
 
 # Just install, don't start
 uvx portable-ovscode --install-only
+
+# HTTPS with self-signed cert (for LAN access)
+uvx portable-ovscode --https --host 192.168.1.50 --port 443
+
+# Bring your own cert
+uvx portable-ovscode --cert /path/cert.pem --cert-key /path/key.pem --host 0.0.0.0
 
 # With SSH tunnel (from local machine)
 ssh -L 3000:127.0.0.1:3000 user@remote
