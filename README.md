@@ -1,5 +1,7 @@
 # portable-ovscode
 
+[![PyPI](https://img.shields.io/pypi/v/portable-ovscode)](https://pypi.org/project/portable-ovscode/)
+
 Run [openvscode-server](https://github.com/gitpod-io/openvscode-server) anywhere with a single command. No pre-install needed — just `uvx`.
 
 ## Quick Start
