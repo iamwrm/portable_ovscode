@@ -20,6 +20,29 @@ GITHUB_RELEASE_URL = (
 LATEST_VERSION = "1.109.5"
 
 
+SUPPORTED_PLATFORMS = {"linux"}
+SUPPORTED_ARCHS = {"x86_64", "amd64", "aarch64", "arm64"}
+
+
+def check_platform() -> None:
+    system = platform.system().lower()
+    machine = platform.machine().lower()
+    if system not in SUPPORTED_PLATFORMS:
+        print(
+            f"[portable-ovscode] ERROR: unsupported platform: {system} "
+            f"(only Linux is supported)",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+    if machine not in SUPPORTED_ARCHS:
+        print(
+            f"[portable-ovscode] ERROR: unsupported architecture: {machine} "
+            f"(supported: x86_64, arm64)",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
+
 def detect_arch() -> str:
     machine = platform.machine().lower()
     if machine in ("x86_64", "amd64"):
@@ -124,8 +147,8 @@ def main() -> None:
     )
     parser.add_argument(
         "--folder",
-        default=None,
-        help="Default folder to open",
+        default=os.getcwd(),
+        help="Default folder to open (default: current directory)",
     )
     parser.add_argument(
         "--install-only",
@@ -134,6 +157,8 @@ def main() -> None:
     )
 
     args, extra = parser.parse_known_args()
+
+    check_platform()
 
     binary = install(args.install_dir, args.version)
 
@@ -150,8 +175,7 @@ def main() -> None:
     else:
         cmd.extend(["--connection-token", token])
 
-    if args.folder:
-        cmd.extend(["--default-folder", os.path.expanduser(args.folder)])
+    cmd.extend(["--default-folder", os.path.expanduser(args.folder)])
 
     cmd.extend(extra)
 
