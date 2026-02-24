@@ -4,20 +4,15 @@
 from __future__ import annotations
 
 import argparse
-import http.server
 import os
 import platform
 import secrets
-import signal
 import socket
-import ssl
 import subprocess
 import sys
 import tarfile
 import tempfile
-import threading
 import urllib.request
-import urllib.parse
 
 GITHUB_RELEASE_URL = (
     "https://github.com/gitpod-io/openvscode-server/releases/download"
@@ -157,61 +152,6 @@ def _is_ip(host: str) -> bool:
         return False
 
 
-class _ProxyHandler(http.server.BaseHTTPRequestHandler):
-    """Simple reverse proxy: HTTPS -> HTTP to openvscode-server."""
-
-    backend_port: int = 0
-
-    def do_request(self) -> None:
-        import http.client
-        conn = http.client.HTTPConnection("127.0.0.1", self.backend_port)
-        # Forward path + query
-        conn.request(
-            self.command,
-            self.path,
-            body=self.rfile.read(int(self.headers.get("Content-Length", 0))) if self.headers.get("Content-Length") else None,
-            headers=dict(self.headers),
-        )
-        resp = conn.getresponse()
-        self.send_response_only(resp.status)
-        for key, val in resp.getheaders():
-            if key.lower() != "transfer-encoding":
-                self.send_header(key, val)
-        self.end_headers()
-        self.wfile.write(resp.read())
-
-    do_GET = do_request
-    do_POST = do_request
-    do_PUT = do_request
-    do_DELETE = do_request
-    do_PATCH = do_request
-    do_HEAD = do_request
-    do_OPTIONS = do_request
-
-    def log_message(self, format, *args):
-        pass  # suppress proxy access logs
-
-
-def run_https_proxy(
-    host: str, https_port: int, backend_port: int,
-    cert_path: str, key_path: str,
-) -> None:
-    """Run an HTTPS reverse proxy in a background thread."""
-    _ProxyHandler.backend_port = backend_port
-
-    server = http.server.HTTPServer((host, https_port), _ProxyHandler)
-    ctx = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
-    ctx.load_cert_chain(cert_path, key_path)
-    server.socket = ctx.wrap_socket(server.socket, server_side=True)
-
-    thread = threading.Thread(target=server.serve_forever, daemon=True)
-    thread.start()
-    print(
-        f"[portable-ovscode] HTTPS proxy listening on {host}:{https_port} -> 127.0.0.1:{backend_port}",
-        file=sys.stderr,
-    )
-
-
 def main() -> None:
     parser = argparse.ArgumentParser(
         prog="portable-ovscode",
@@ -338,7 +278,8 @@ def main() -> None:
         import time
         time.sleep(1)
 
-        run_https_proxy(args.host, port, backend_port, cert_path, key_path)
+        from portable_ovscode.proxy import run_tls_proxy
+        run_tls_proxy(args.host, port, backend_port, cert_path, key_path)
 
         try:
             proc.wait()
