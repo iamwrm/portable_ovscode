@@ -8,10 +8,10 @@ Run [openvscode-server](https://github.com/gitpod-io/openvscode-server) anywhere
 
 ```bash
 # SSH to your server, then:
-uvx portable-ovscode --port 3000 --folder ~/project
+uvx portable-ovscode
 ```
 
-That's it. It downloads openvscode-server (if not cached), generates a token, starts the server, and prints the URL.
+That's it. It downloads openvscode-server (if not cached), generates a token, starts the server in the current directory, and prints the URL.
 
 ## Usage
 
