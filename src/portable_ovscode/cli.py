@@ -17,7 +17,7 @@ import urllib.request
 GITHUB_RELEASE_URL = (
     "https://github.com/gitpod-io/openvscode-server/releases/download"
 )
-LATEST_VERSION = "1.96.4"
+LATEST_VERSION = "1.109.5"
 
 
 def detect_arch() -> str:

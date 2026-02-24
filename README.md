@@ -20,7 +20,7 @@ uvx portable-ovscode [OPTIONS] [-- EXTRA_ARGS]
 | Flag | Default | Description |
 |------|---------|-------------|
 | `--install-dir DIR` | `~/.local/share/openvscode-server` | Where to put the binary |
-| `--version VER` | `1.96.4` | openvscode-server version |
+| `--version VER` | `1.109.5` | openvscode-server version |
 | `--host ADDR` | `127.0.0.1` | Bind address |
 | `--port PORT` | `3000` | Bind port |
 | `--token TOKEN` | auto-generated | Connection token |
