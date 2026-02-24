@@ -175,13 +175,13 @@ def main() -> None:
     else:
         cmd.extend(["--connection-token", token])
 
-    cmd.extend(["--default-folder", os.path.expanduser(args.folder)])
+    folder = os.path.abspath(os.path.expanduser(args.folder))
 
     cmd.extend(extra)
 
-    url = f"http://{args.host}:{args.port}"
+    url = f"http://{args.host}:{args.port}/?folder={folder}"
     if not args.no_token:
-        url += f"/?tkn={token}"
+        url += f"&tkn={token}"
 
     print(f"[portable-ovscode] starting server", file=sys.stderr)
     print(f"[portable-ovscode] open: {url}", file=sys.stderr)
