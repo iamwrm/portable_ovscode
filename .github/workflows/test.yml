@@ -1,0 +1,56 @@
+name: Test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v6
+
+      - name: Install package
+        run: uv pip install --system -e .
+
+      - name: Test --install-only
+        run: |
+          BINARY=$(portable-ovscode --install-only)
+          echo "Binary: $BINARY"
+          test -x "$BINARY"
+          echo "✅ install-only: binary exists and is executable"
+
+      - name: Test server starts and responds
+        run: |
+          TOKEN="test-token-abc123"
+          portable-ovscode --port 3000 --token "$TOKEN" --folder /tmp &
+          SERVER_PID=$!
+
+          # wait for server to be ready (max 30s)
+          for i in $(seq 1 30); do
+            if curl -sf -o /dev/null "http://127.0.0.1:3000/?tkn=${TOKEN}" 2>/dev/null; then
+              echo "✅ server responded after ${i}s"
+              break
+            fi
+            sleep 1
+          done
+
+          # verify HTTP 200
+          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "http://127.0.0.1:3000/?tkn=${TOKEN}")
+          echo "HTTP status: $HTTP_CODE"
+          test "$HTTP_CODE" = "200"
+          echo "✅ server: HTTP 200 OK"
+
+          # verify bad token gets rejected
+          BAD_CODE=$(curl -s -o /dev/null -w "%{http_code}" "http://127.0.0.1:3000/?tkn=wrong")
+          echo "Bad token HTTP status: $BAD_CODE"
+          test "$BAD_CODE" != "200"
+          echo "✅ server: bad token rejected"
+
+          kill $SERVER_PID 2>/dev/null || true
+          echo "✅ all tests passed"
