@@ -15,12 +15,9 @@ jobs:
 
       - uses: astral-sh/setup-uv@v6
 
-      - name: Install package
-        run: uv pip install --system -e .
-
       - name: Test --install-only
         run: |
-          BINARY=$(portable-ovscode --install-only)
+          BINARY=$(uvx --from . portable-ovscode --install-only)
           echo "Binary: $BINARY"
           test -x "$BINARY"
           echo "✅ install-only: binary exists and is executable"
@@ -28,7 +25,7 @@ jobs:
       - name: Test server starts and responds
         run: |
           TOKEN="test-token-abc123"
-          portable-ovscode --port 3000 --token "$TOKEN" --folder /tmp &
+          uvx --from . portable-ovscode --port 3000 --token "$TOKEN" --folder /tmp &
           SERVER_PID=$!
 
           # wait for server to be ready (max 30s)
