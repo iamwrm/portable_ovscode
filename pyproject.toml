@@ -1,0 +1,15 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "portable-ovscode"
+version = "0.1.0"
+description = "Run openvscode-server anywhere with uvx"
+readme = "README.md"
+requires-python = ">=3.9"
+license = "MIT"
+authors = [{ name = "WR" }]
+
+[project.scripts]
+portable-ovscode = "portable_ovscode.cli:main"
