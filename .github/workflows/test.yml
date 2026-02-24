@@ -50,4 +50,34 @@ jobs:
           echo "✅ server: bad token rejected"
 
           kill $SERVER_PID 2>/dev/null || true
-          echo "✅ all tests passed"
+          echo "✅ all HTTP tests passed"
+
+      - name: Test HTTPS with self-signed cert
+        run: |
+          TOKEN="https-test-token"
+          uvx --from . portable-ovscode --https --port 4443 --token "$TOKEN" --folder /tmp &
+          SERVER_PID=$!
+
+          # wait for HTTPS proxy to be ready (max 30s)
+          for i in $(seq 1 30); do
+            if curl -sk -o /dev/null "https://127.0.0.1:4443/" 2>/dev/null; then
+              echo "✅ HTTPS proxy responded after ${i}s"
+              break
+            fi
+            sleep 1
+          done
+
+          # verify valid token (follow redirects + cookies, skip cert verify)
+          HTTP_CODE=$(curl -sk -L -b /tmp/https_cookies -c /tmp/https_cookies -o /dev/null -w "%{http_code}" "https://127.0.0.1:4443/?tkn=${TOKEN}")
+          echo "HTTPS status: $HTTP_CODE"
+          test "$HTTP_CODE" = "200"
+          echo "✅ HTTPS: HTTP 200 OK"
+
+          # verify bad token rejected
+          BAD_CODE=$(curl -sk --max-time 5 -o /dev/null -w "%{http_code}" "https://127.0.0.1:4443/?tkn=wrong")
+          echo "HTTPS bad token status: $BAD_CODE"
+          test "$BAD_CODE" != "200"
+          echo "✅ HTTPS: bad token rejected"
+
+          kill $SERVER_PID 2>/dev/null || true
+          echo "✅ all HTTPS tests passed"
