@@ -182,8 +182,8 @@ def main() -> None:
     )
     parser.add_argument(
         "--port",
-        default="3000",
-        help="Bind port (default: 3000)",
+        default=None,
+        help="Bind port (default: 3000, auto-increments if occupied)",
     )
     parser.add_argument(
         "--token",
@@ -233,7 +233,16 @@ def main() -> None:
 
     token = args.token or secrets.token_hex(16)
     use_https = args.https or args.cert or args.cert_key
-    port = int(args.port)
+
+    if args.port is not None:
+        port = int(args.port)
+    else:
+        port = _find_available_port(args.host, 3000)
+        if port != 3000:
+            print(
+                f"[portable-ovscode] port 3000 in use, using {port}",
+                file=sys.stderr,
+            )
 
     folder = os.path.abspath(os.path.expanduser(args.folder))
 
@@ -293,6 +302,22 @@ def main() -> None:
             sys.exit(proc.returncode)
         except KeyboardInterrupt:
             print("\n[portable-ovscode] stopped", file=sys.stderr)
+
+
+def _find_available_port(host: str, start: int, max_tries: int = 100) -> int:
+    """Try to bind to *start*, then start+1, … Returns the first available port."""
+    for offset in range(max_tries):
+        candidate = start + offset
+        try:
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                s.bind((host, candidate))
+                return candidate
+        except OSError:
+            continue
+    # Fallback: let the OS pick one
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.bind((host, 0))
+        return s.getsockname()[1]
 
 
 def _find_free_port() -> int:
