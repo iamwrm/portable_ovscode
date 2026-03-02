@@ -63,6 +63,18 @@ uvx portable-ovscode --folder ~/project
 # open http://127.0.0.1:3000/?tkn=<printed-token> locally
 ```
 
+## Agentic Programming
+
+Works great with AI coding agents like [Claude Code](https://docs.anthropic.com/en/docs/claude-code), [Codex](https://github.com/openai/codex), or [pi-agent](https://github.com/badlogic/pi-mono/tree/main/packages/coding-agent). Let the agent edit your code, then spin up an editor to review the changes:
+
+```bash
+# Agent makes changes in ~/project...
+# Review them instantly:
+uvx portable-ovscode --folder ~/project
+```
+
+No IDE needs to be pre-installed — just open the URL, review diffs, and you're done.
+
 ## How It Works
 
 1. Detects platform architecture (x64/arm64).
