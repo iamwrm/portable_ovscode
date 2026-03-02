@@ -55,6 +55,7 @@ jobs:
           echo "✅ server: bad token rejected"
 
           kill $SERVER_PID 2>/dev/null || true
+          sleep 2
           echo "✅ all HTTP tests passed"
 
       - name: Test port auto-increment
@@ -62,20 +63,32 @@ jobs:
           TOKEN1="token-port-test-1"
           TOKEN2="token-port-test-2"
 
-          # Start first server on default port 3000
-          uvx --from . portable-ovscode --port 3000 --token "$TOKEN1" --folder /tmp &
+          # Start first server on port 5000
+          uvx --from . portable-ovscode --port 5000 --token "$TOKEN1" --folder /tmp &
           PID1=$!
 
           # wait for first server
           for i in $(seq 1 30); do
-            if curl -sf -o /dev/null "http://127.0.0.1:3000/?tkn=${TOKEN1}" 2>/dev/null; then
-              echo "✅ first server ready on :3000 after ${i}s"
+            if curl -sf -o /dev/null "http://127.0.0.1:5000/?tkn=${TOKEN1}" 2>/dev/null; then
+              echo "✅ first server ready on :5000 after ${i}s"
               break
             fi
             sleep 1
           done
 
-          # Start second server without --port; should auto-detect 3001
+          # Also occupy port 3000 so auto-detect starts searching
+          python3 -c "
+          import socket, time, threading
+          s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+          s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+          s.bind(('127.0.0.1', 3000))
+          s.listen(1)
+          time.sleep(120)
+          " &
+          BLOCKER_PID=$!
+          sleep 1
+
+          # Start second server without --port; 3000 is blocked, should auto-detect 3001
           uvx --from . portable-ovscode --token "$TOKEN2" --folder /tmp 2>/tmp/auto_port_stderr &
           PID2=$!
 
@@ -94,13 +107,13 @@ jobs:
           echo "✅ auto-increment message found in stderr"
 
           # Verify both servers respond correctly
-          HTTP1=$(curl -sL -b /tmp/c1 -c /tmp/c1 -o /dev/null -w "%{http_code}" "http://127.0.0.1:3000/?tkn=${TOKEN1}")
+          HTTP1=$(curl -sL -b /tmp/c1 -c /tmp/c1 -o /dev/null -w "%{http_code}" "http://127.0.0.1:5000/?tkn=${TOKEN1}")
           HTTP2=$(curl -sL -b /tmp/c2 -c /tmp/c2 -o /dev/null -w "%{http_code}" "http://127.0.0.1:3001/?tkn=${TOKEN2}")
           test "$HTTP1" = "200"
           test "$HTTP2" = "200"
           echo "✅ both servers return HTTP 200"
 
-          kill $PID1 $PID2 2>/dev/null || true
+          kill $PID1 $PID2 $BLOCKER_PID 2>/dev/null || true
           echo "✅ port auto-increment test passed"
 
       - name: Test HTTPS with self-signed cert
