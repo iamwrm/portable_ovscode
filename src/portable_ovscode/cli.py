@@ -18,6 +18,7 @@ GITHUB_RELEASE_URL = (
     "https://github.com/gitpod-io/openvscode-server/releases/download"
 )
 LATEST_VERSION = "1.109.5"
+PKG_VERSION = "0.3.0"
 
 SUPPORTED_PLATFORMS = {"linux"}
 SUPPORTED_ARCHS = {"x86_64", "amd64", "aarch64", "arm64"}
@@ -164,6 +165,11 @@ def main() -> None:
             "  uvx portable-ovscode -- --without-connection-token"
         ),
         formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
+    parser.add_argument(
+        "-V",
+        action="version",
+        version=f"%(prog)s {PKG_VERSION}",
     )
     parser.add_argument(
         "--install-dir",
