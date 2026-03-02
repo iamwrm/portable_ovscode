@@ -11,5 +11,8 @@ requires-python = ">=3.9"
 license = "MIT"
 authors = [{ name = "WR" }]
 
+[dependency-groups]
+dev = ["pytest"]
+
 [project.scripts]
 portable-ovscode = "portable_ovscode.cli:main"
