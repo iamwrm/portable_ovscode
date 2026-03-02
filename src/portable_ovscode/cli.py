@@ -17,8 +17,10 @@ import urllib.request
 GITHUB_RELEASE_URL = (
     "https://github.com/gitpod-io/openvscode-server/releases/download"
 )
+from importlib.metadata import version as _pkg_version
+
 LATEST_VERSION = "1.109.5"
-PKG_VERSION = "0.3.1"
+PKG_VERSION = _pkg_version("portable-ovscode")
 
 SUPPORTED_PLATFORMS = {"linux"}
 SUPPORTED_ARCHS = {"x86_64", "amd64", "aarch64", "arm64"}
