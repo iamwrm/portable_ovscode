@@ -18,7 +18,7 @@ GITHUB_RELEASE_URL = (
     "https://github.com/gitpod-io/openvscode-server/releases/download"
 )
 LATEST_VERSION = "1.109.5"
-PKG_VERSION = "0.3.0"
+PKG_VERSION = "0.3.1"
 
 SUPPORTED_PLATFORMS = {"linux"}
 SUPPORTED_ARCHS = {"x86_64", "amd64", "aarch64", "arm64"}
