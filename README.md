@@ -22,9 +22,10 @@ uvx portable-ovscode [OPTIONS] [-- EXTRA_ARGS]
 | Flag | Default | Description |
 |------|---------|-------------|
 | `--install-dir DIR` | `~/.local/share/openvscode-server` | Where to put the binary |
-| `--version VER` | `1.109.5` | openvscode-server version |
+| `-V, --version` | | Show package version and exit |
+| `--server-version VER` | `1.109.5` | openvscode-server version |
 | `--host ADDR` | `127.0.0.1` | Bind address |
-| `--port PORT` | `3000` | Bind port |
+| `--port PORT` | `3000` | Bind port (auto-increments if occupied) |
 | `--token TOKEN` | auto-generated | Connection token |
 | `--no-token` | | Disable auth token |
 | `--folder PATH` | | Default folder to open |
@@ -45,7 +46,7 @@ uvx portable-ovscode --port 8080 --folder ~/work
 uvx portable-ovscode --install-dir /opt/ovscode --folder ~/project
 
 # Specific version
-uvx portable-ovscode --version 1.95.3 --folder ~/code
+uvx portable-ovscode --server-version 1.95.3 --folder ~/code
 
 # Just install, don't start
 uvx portable-ovscode --install-only

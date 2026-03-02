@@ -167,7 +167,7 @@ def main() -> None:
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     parser.add_argument(
-        "-V",
+        "-V", "--version",
         action="version",
         version=f"%(prog)s {PKG_VERSION}",
     )
@@ -177,7 +177,7 @@ def main() -> None:
         help="Directory to install the binary (default: ~/.local/share/openvscode-server)",
     )
     parser.add_argument(
-        "--version",
+        "--server-version",
         default=LATEST_VERSION,
         help=f"openvscode-server version (default: {LATEST_VERSION})",
     )
@@ -231,7 +231,7 @@ def main() -> None:
 
     check_platform()
 
-    binary = install(args.install_dir, args.version)
+    binary = install(args.install_dir, args.server_version)
 
     if args.install_only:
         print(binary)
