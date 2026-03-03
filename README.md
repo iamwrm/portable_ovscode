@@ -76,6 +76,10 @@ uvx portable-ovscode --folder ~/project
 
 No IDE needs to be pre-installed — just open the URL, review diffs, and you're done.
 
+## Notes
+
+- **Right-click paste in terminal**: Due to Chrome's security restrictions, right-click to paste in the integrated terminal only works over HTTPS. Use the `--https` flag or set up a proper TLS certificate if you need this feature.
+
 ## How It Works
 
 1. Detects platform architecture (x64/arm64).
